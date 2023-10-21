@@ -69,7 +69,7 @@ class MonteCarloSimulationScenario:
         #     return 0
         # else:
         #     return 20*observation[0]** 2 + 100*observation[1]** 2 + observation[2]**2 + 5*observation[3]**2
-        return observation[0]** 2 + observation[1]** 2
+        return 10*(1-np.cos(observation[0])) + observation[1]**2
 
     def run(self) -> None:
         """Run main loop"""
