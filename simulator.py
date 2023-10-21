@@ -18,8 +18,8 @@ class Simulator:
         self.state_init = np.copy(state_init)
         self.current_step_idx = 0
 
-        self.MAX_ANGLE = np.pi / 2
-        self.MAX_DISTANCE = 5
+        self.MAX_ANGLE = np.pi / 15
+        self.MAX_DISTANCE = 10
 
     def step(self) -> bool:
 
@@ -27,19 +27,19 @@ class Simulator:
             self.state += (
                 self.system.compute_closed_loop_rhs(self.state) * self.step_size
             )
-            if self.state[0] > self.MAX_ANGLE: 
-                self.state[0] = self.MAX_ANGLE
-                self.state[1] = 0
-            elif self.state[0] < -self.MAX_ANGLE: 
-                self.state[0] = -self.MAX_ANGLE
-                self.state[1] = 0
+            # if self.state[0] > self.MAX_ANGLE: 
+            #     self.state[0] = self.MAX_ANGLE
+            #     self.state[1] = 0
+            # elif self.state[0] < -self.MAX_ANGLE: 
+            #     self.state[0] = -self.MAX_ANGLE
+            #     self.state[1] = 0
             
-            if self.state[2] > self.MAX_DISTANCE:
-                self.state[2] = self.MAX_DISTANCE
-                self.state[3] = 0
-            elif self.state[2] < -self.MAX_DISTANCE:
-                self.state[2] = -self.MAX_DISTANCE
-                self.state[3] = 0
+            # if self.state[2] > self.MAX_DISTANCE:
+            #     self.state[2] = self.MAX_DISTANCE
+            #     self.state[3] = 0
+            # elif self.state[2] < -self.MAX_DISTANCE:
+            #     self.state[2] = -self.MAX_DISTANCE
+            #     self.state[3] = 0
             
             self.current_step_idx += 1
             return True

@@ -2,8 +2,8 @@ import numpy as np
 
 class InvertedPendulumSystem:
     dim_action: int = 1
-    dim_observation: int = 4
-    dim_state: int = 4
+    dim_observation: int = 2
+    dim_state: int = 2
 
     m: float = 0.1
     mc: float = 1
@@ -27,8 +27,8 @@ class InvertedPendulumSystem:
         Dstate[0] = state[1]
         Dstate[1] = (self.m + self.mc) * self.g * sin_angle - cos_angle * (action + self.m * self.l * state[1]**2 * sin_angle)
         Dstate[1] /= 4 / 3 * (self.m + self.mc) * self.l - self.m * self.l * cos_angle**2
-        Dstate[2] = state[3]
-        Dstate[3] = (action + self.m * self.l * (state[1]**2 * sin_angle - Dstate[1]*cos_angle)) / (self.m + self.mc)
+        # Dstate[2] = state[3]
+        # Dstate[3] = (action + self.m * self.l * (state[1]**2 * sin_angle - Dstate[1]*cos_angle)) / (self.m + self.mc)
 
         return Dstate
 

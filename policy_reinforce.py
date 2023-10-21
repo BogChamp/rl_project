@@ -44,6 +44,7 @@ class PolicyREINFORCE:
             tail_total_objectives -= baselines
         
         tail_total_objectives *= log_probs
+        #print('reinforce_obj', tail_total_objectives.sum() / N_episodes)
         return tail_total_objectives.sum() / N_episodes
 
 
