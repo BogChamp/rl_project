@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 import numpy as np
 import pandas as pd
 from typing import Tuple, Dict
+from torch import nn
 import torch
 
 class IterationBuffer(Dataset):
@@ -119,11 +120,18 @@ class IterationBuffer(Dataset):
 
         observation = torch.tensor(self.observations[idx])
         action = torch.tensor(self.actions[idx])
-        print(len(self.total_objectives), len(self.baselines), len(self.observations))
+        if idx < len(self.baselines):
+            baseline = self.baselines[idx]
+        else:
+            baseline = 0
+        # print(len(self.baselines), idx)
+        # print(self.baselines[idx])
+        # self.baselines = torch.tensor(self.baselines)
+        # self.baselines = nn.ConstantPad1d((0, len(self.observations) - self.baselines.shape[0]), 0)(self.baselines)
         return {
             "observations_actions": torch.cat([observation, action]),
             "tail_total_objectives": torch.tensor(self.total_objectives[idx]),
-            "baselines": torch.tensor(self.baselines[idx]),
+            "baselines": baseline,
         }
 
     @property

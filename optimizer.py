@@ -94,6 +94,7 @@ class Optimizer:
             shuffle=self.shuffle,
             batch_size=len(dataset),
         )
+        #print('optimize!', len(dataset.observations), len(dataset.actions), len(dataset.running_objectives), len(dataset.step_ids))
         batch_sample = next(iter(dataloader))
         self.optimizer.zero_grad()
         objective_value = objective(batch_sample)
