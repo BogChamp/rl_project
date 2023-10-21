@@ -2,7 +2,7 @@ import numpy as np
 
 class InvertedPendulumSystem:
     dim_action: int = 1
-    dim_observation: int = 2
+    dim_observation: int = 3
     dim_state: int = 2
 
     m: float = 0.1
@@ -20,7 +20,7 @@ class InvertedPendulumSystem:
 
     def compute_dynamics(self, state: np.array, action: np.array) -> np.array:
 
-        Dstate = np.zeros(self.dim_observation)
+        Dstate = np.zeros(self.dim_state)
 
         sin_angle = np.sin(state[0])
         cos_angle = np.cos(state[0])
@@ -43,6 +43,9 @@ class InvertedPendulumSystem:
 
     @staticmethod
     def get_observation(state: np.array) -> np.array:
-        observation = state
+        observation = np.zeros(InvertedPendulumSystem.dim_observation)
+        observation[0] = np.cos(state[0])
+        observation[1] = np.sin(state[0])
+        observation[2] = state[1]
 
         return observation

@@ -24,6 +24,7 @@ class Simulator:
     def step(self) -> bool:
 
         if self.current_step_idx <= self.N_steps:
+
             self.state += (
                 self.system.compute_closed_loop_rhs(self.state) * self.step_size
             )

@@ -69,7 +69,7 @@ class MonteCarloSimulationScenario:
         #     return 0
         # else:
         #     return 20*observation[0]** 2 + 100*observation[1]** 2 + observation[2]**2 + 5*observation[3]**2
-        return 10*(1-np.cos(observation[0])) + observation[1]**2
+        return 10*(1-observation[0]) + observation[2]**2
 
     def run(self) -> None:
         """Run main loop"""
@@ -163,7 +163,7 @@ class MonteCarloSimulationScenario:
         #plt.yscale("log")
         plt.show()
 
-        theta_ax, dot_theta_ax = pd.DataFrame(
+        cos_theta_ax, sin_theta_ax, dot_theta_ax = pd.DataFrame(
             data=self.last_observations.loc[0].values
         ).plot(
             xlabel="Step Number",
@@ -172,7 +172,8 @@ class MonteCarloSimulationScenario:
             subplots=True,
             grid=True,
         )
-        theta_ax.set_ylabel("angle")
+        cos_theta_ax.set_ylabel("cos angle")
+        sin_theta_ax.set_ylabel("sin angle")
         dot_theta_ax.set_ylabel("angular velocity")
         # h_ax.set_ylabel("cartpole coord")
         # dot_h_ax.set_ylabel("cartpole velocity")
