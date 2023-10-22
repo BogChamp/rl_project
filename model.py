@@ -3,6 +3,7 @@ from torch import nn
 import torch
 from typing import Tuple
 from torch.distributions.multivariate_normal import MultivariateNormal
+from torch.distributions import Categorical
 
 from perceptron import ModelPerceptron
 
@@ -131,8 +132,6 @@ class GaussianPDFModel(nn.Module):
         out = self.perceptron(observations)
         return (1 - 3 * self.std) * torch.tanh(out / self.scale_factor)
         
-
-
     def split_to_observations_actions(
         self, observations_actions: torch.FloatTensor
     ) -> Tuple[torch.FloatTensor, torch.FloatTensor]:
@@ -184,7 +183,6 @@ class GaussianPDFModel(nn.Module):
         log_probs = MultivariateNormal(scaled_mean, scale_tril=scale_tril_matrix).log_prob(scaled_action)
         return log_probs
         
-
     def sample(self, observation: torch.FloatTensor) -> torch.FloatTensor:
         """Sample action from `MultivariteNormal(lambda * self.get_means(observation) + beta, lambda ** 2 * Diag[self.std] ** 2)`
 
@@ -204,3 +202,77 @@ class GaussianPDFModel(nn.Module):
         return torch.clamp(
             sampled_action, action_bounds[:, 0], action_bounds[:, 1]
         )
+
+
+class DiscreteModel(nn.Module):
+    def __init__(self,
+        dim_observation: int,
+        dim_action: int,
+        dim_hidden: int,
+        n_hidden_layers: int,
+        leakyrelu_coef=0.2,
+        dim_output=3
+        ):
+        super().__init__()
+
+        self.dim_observation = dim_observation
+        self.dim_action = dim_action
+        self.dim_hidden = dim_hidden
+        self.leakyrelu_coef = leakyrelu_coef
+
+        self.perceptron = ModelPerceptron(
+            dim_input=self.dim_observation,
+            dim_output=dim_output,
+            dim_hidden=dim_hidden,
+            n_hidden_layers=n_hidden_layers,
+            leaky_relu_coef=leakyrelu_coef,
+        )
+    
+    def sample(self, observation: torch.FloatTensor) -> torch.FloatTensor:
+        out = self.perceptron(observation)
+        out = nn.functional.softmax(out, dim=-1)
+        sampler = Categorical(out)
+        action = sampler.sample()
+        #print(action)
+        return torch.tensor([action])
+    
+    def log_probs(self, batch_of_observations_actions: torch.FloatTensor) -> torch.FloatTensor:
+        observations, actions = self.split_to_observations_actions(
+            batch_of_observations_actions
+        )
+
+        out = self.perceptron(observations)
+        out = nn.functional.softmax(out, dim=-1)
+        sampler = Categorical(out)
+        log_probs = sampler.log_prob(actions.reshape(-1,))
+        return log_probs
+    
+    def split_to_observations_actions(
+        self, observations_actions: torch.FloatTensor
+    ) -> Tuple[torch.FloatTensor, torch.FloatTensor]:
+        """Split input tensor to tuple of observation(s) and action(s)
+
+        Args:
+            observations_actions (torch.FloatTensor): tensor of catted observations actions to split
+
+        Raises:
+            ValueError: in case if `observations_actions` has dimensinality greater than 2
+
+        Returns:
+            Tuple[torch.FloatTensor, torch.FloatTensor]: tuple of observation(s) and action(s)
+        """
+
+        if len(observations_actions.shape) == 1:
+            observation, action = (
+                observations_actions[: self.dim_observation],
+                observations_actions[self.dim_observation :],
+            )
+        elif len(observations_actions.shape) == 2:
+            observation, action = (
+                observations_actions[:, : self.dim_observation],
+                observations_actions[:, self.dim_observation :],
+            )
+        else:
+            raise ValueError("Input tensor has unexpected dims")
+
+        return observation, action

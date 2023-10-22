@@ -69,7 +69,16 @@ class MonteCarloSimulationScenario:
         #     return 0
         # else:
         #     return 20*observation[0]** 2 + 100*observation[1]** 2 + observation[2]**2 + 5*observation[3]**2
-        return 10*(1-observation[0]) + observation[2]**2
+        # if observation[0] < -0.5:
+        #     return 1000
+        # elif observation[0] < 0.8:
+        #     return 500
+        # elif observation[0] < 0.95:
+        #     return 200
+        # else:
+        #     return 0 + observation[2]**2
+        #print(observation[0])
+        return 30*(1-observation[0])**2 + observation[2]**2 #+ 5*observation[2]**2 + 20*observation[1]**2
 
     def run(self) -> None:
         """Run main loop"""

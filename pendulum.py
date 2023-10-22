@@ -10,8 +10,8 @@ class InvertedPendulumSystem:
     l: float = 0.5
     g: float = 9.81
 
-    def __init__(self) -> None:
-
+    def __init__(self, f:float = 10.0) -> None:
+        self.f = f
         self.reset()
 
     def reset(self) -> None:
@@ -25,7 +25,8 @@ class InvertedPendulumSystem:
         sin_angle = np.sin(state[0])
         cos_angle = np.cos(state[0])
         Dstate[0] = state[1]
-        Dstate[1] = (self.m + self.mc) * self.g * sin_angle - cos_angle * (action + self.m * self.l * state[1]**2 * sin_angle)
+        u = (action - 1) * self.f
+        Dstate[1] = (self.m + self.mc) * self.g * sin_angle - cos_angle * (u + self.m * self.l * state[1]**2 * sin_angle)
         Dstate[1] /= 4 / 3 * (self.m + self.mc) * self.l - self.m * self.l * cos_angle**2
         # Dstate[2] = state[3]
         # Dstate[3] = (action + self.m * self.l * (state[1]**2 * sin_angle - Dstate[1]*cos_angle)) / (self.m + self.mc)
