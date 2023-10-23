@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from simulator import Simulator
 from pendulum import InvertedPendulumSystem
 from policy_reinforce import PolicyREINFORCE
+from LQR import LQR
 
 
 class MonteCarloSimulationScenario:
@@ -177,6 +178,7 @@ class MonteCarloSimulationScenario:
         #plt.yscale("log")
         plt.show()
 
+
         cos_theta_ax, sin_theta_ax, dot_theta_ax = pd.DataFrame(
             data=self.last_observations.loc[0].values
         ).plot(
@@ -201,5 +203,96 @@ class MonteCarloSimulationScenario:
             grid=True,
         )
         actions_ax.set_ylabel("action")
+
+        plt.show()
+
+
+class MonteCarloLQR(MonteCarloSimulationScenario):
+    def __init__(
+        self,
+        simulator: Simulator,
+        system: InvertedPendulumSystem,
+        lqr: LQR, 
+        N_episodes: int,
+        N_iterations: int,
+        discount_factor: float = 1.0,
+        termination_criterion: Callable[
+            [np.array, np.array, float, float], bool
+        ] = lambda *args: False,
+    ):
+        self.simulator = simulator
+        self.system = system
+        self.lqr = lqr
+        self.N_episodes = N_episodes
+        self.N_iterations = N_iterations
+        self.termination_criterion = termination_criterion
+        self.discount_factor = discount_factor
+
+        self.total_objective = 0
+        self.total_objectives_episodic = []
+        self.learning_curve = []
+        self.last_observations = None
+    
+    def run(self) -> None:
+        """Run main loop"""
+
+        eps = 0.1
+        means_total_objectives = [eps]
+        for iteration_idx in range(self.N_iterations):
+            if iteration_idx % 10 == 0:
+                clear_output(wait=True)
+            observations = []
+            actions = []
+            for episode_idx in tqdm(range(self.N_episodes)):
+                terminated = False
+                while self.simulator.step():
+                    (
+                        observation,
+                        action,
+                        step_idx,
+                    ) = self.simulator.get_sim_step_data()
+
+                    new_action = self.lqr.get_action(observation)
+                    discounted_running_objective = self.discount_factor ** (
+                        step_idx
+                    ) * self.compute_running_objective(observation, new_action)
+                    self.total_objective += discounted_running_objective
+
+                    if not terminated and self.termination_criterion(
+                        observation,
+                        new_action,
+                        discounted_running_objective,
+                        self.total_objective,
+                    ):
+                        terminated = True
+                    
+                    observations.append(np.copy(observation))
+                    actions.append(new_action)
+                    self.system.receive_action(new_action)
+                #print("A", len(self.policy.buffer.observations), len(self.policy.buffer.actions), len(self.policy.buffer.running_objectives))
+                self.simulator.reset()
+                self.total_objectives_episodic.append(self.total_objective)
+                self.total_objective = 0
+            self.learning_curve.append(np.mean(self.total_objectives_episodic))
+            self.last_observations = pd.DataFrame(observations)
+            self.last_actions = pd.DataFrame(actions)
+
+            means_total_objectives.append(np.mean(self.total_objectives_episodic))
+            change = (means_total_objectives[-1] / means_total_objectives[-2] - 1) * 100
+            sign = "-" if np.sign(change) == -1 else "+"
+            print(
+                f"Iteration: {iteration_idx + 1} / {self.N_iterations}, "
+                + f"mean total cost {round(means_total_objectives[-1], 2)}, "
+                + f"% change: {sign}{abs(round(change,2))}, "
+                + f"last observation: {self.last_observations.iloc[-1].values.reshape(-1)}",
+                end="\n",
+            )
+
+            self.total_objectives_episodic = []
+        
+    def plot_data(self):
+        """Plot learning results"""
+
+        self.last_observations.plot(subplots=True)
 
         plt.show()
