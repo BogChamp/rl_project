@@ -48,5 +48,7 @@ class InvertedPendulumSystem:
         observation[0] = np.cos(state[0])
         observation[1] = np.sin(state[0])
         observation[2] = state[1]
+        # observation[3] = state[2]
+        # observation[4] = state[3]
 
         return observation

@@ -63,23 +63,28 @@ class MonteCarloSimulationScenario:
         Returns:
             float: running objective value
         """
-        # if np.abs(observation[0]) > np.pi / 3:
-        #     return 10**9
-        # else:
-        #     return 0
-        # else:
-        #     return 20*observation[0]** 2 + 100*observation[1]** 2 + observation[2]**2 + 5*observation[3]**2
+        # out = 50*(1-observation[0])
+        # if observation[0] > 0.995:
+        #     out += observation[2]**2 + 10*observation[1]**2
+        # return out
+        # out = observation[3]**2
         # if observation[0] < -0.5:
-        #     return 1000
+        #     return 1000 + observation[3]**2
         # elif observation[0] < 0.8:
-        #     return 500
+        #     return 500 + observation[3]**2
         # elif observation[0] < 0.95:
         #     return 200
         # else:
-        #     return 0 + observation[2]**2
+        #     return observation[2]**2
         #print(observation[0])
-        return 30*(1-observation[0])**2 + observation[2]**2 #+ 5*observation[2]**2 + 20*observation[1]**2
-
+        # if np.abs(observation[3]) > 5:
+        #     return 100*(1-observation[0]) + observation[3]**2
+        # return 100*(1-observation[0])
+        # if observation[0] < 0.9:
+        #     return 80*(1-observation[0]) + observation[1]**2 + observation[3]**2
+        # else:
+        return 30*(1-observation[0]) + observation[1]**2
+    
     def run(self) -> None:
         """Run main loop"""
 

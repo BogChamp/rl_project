@@ -19,7 +19,7 @@ class Simulator:
         self.current_step_idx = 0
 
         self.MAX_ANGLE = np.pi / 15
-        self.MAX_DISTANCE = 10
+        self.MAX_DISTANCE = 5
 
     def step(self) -> bool:
 
