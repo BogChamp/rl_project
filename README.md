@@ -29,7 +29,7 @@ policy = PolicyREINFORCE(...)
 
 trivial_termination_criterion = lambda *args: False
 
-scenario = MonteCarloSimulationScenario(
+scenario = MonteCarloSimulationScenario(\\
     simulator=simulator,
     system=system,
     policy=policy,
