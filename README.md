@@ -29,12 +29,12 @@ policy = PolicyREINFORCE(...)
 
 trivial_termination_criterion = lambda *args: False
 
-scenario = MonteCarloSimulationScenario(\\
-    simulator=simulator,
-    system=system,
-    policy=policy,
-    N_episodes=2, - num of episodes
-    N_iterations=200, - num of iterations
-    termination_criterion=trivial_termination_criterion,
-    discount_factor=1.0, - gamma
+scenario = MonteCarloSimulationScenario(<br />
+    simulator=simulator,<br />
+    system=system, <br />
+    policy=policy, <br />
+    N_episodes=2, - num of episodes <br />
+    N_iterations=200, - num of iterations <br />
+    termination_criterion=trivial_termination_criterion, <br />
+    discount_factor=1.0, - gamma <br />
 )
